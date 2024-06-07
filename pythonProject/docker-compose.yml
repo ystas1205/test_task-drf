@@ -1,0 +1,53 @@
+version: '3.9'
+# Общая сеть для всех контейнеров
+networks:
+  book_service_network:
+
+services:
+  book_service:
+    # Берем Dockerfile из каталога book_sevice
+    build:
+      context: ./book_service
+    networks:
+      book_service_network:
+    # Внешний том(volume) и место где он будет подключен внутри контейнера
+    # и статика внутри контейнера
+    volumes:
+      - ./book_service/:/app
+      # - static_volume:/app/static
+      # - media_volume:/app/media
+    # Перезапускаем все остановленные и работающие службы
+    restart: always
+    # Открываем порт 8000 внутри и снаружи 8001
+    ports:
+      - "8001:8000"
+    # Переменные окружения
+    env_file:
+      - ./.env
+    # Запускаем сначала postgres
+    depends_on:
+      - db
+
+
+  # Образ и версия базы, которую мы будем использовать
+  db:
+    image: postgres:latest
+    networks:
+      book_service_network:
+    # Перезапускаем все остановленные и работающие службы
+    restart: always
+    container_name: postgres
+    # Внешний том(volume) и место где он будет подключен внутри контейнера
+    volumes:
+      - postgres_volume:/var/lib/postgresql/data/
+    # Учетные данные
+    env_file:
+      - ./.env
+      # Открываем порт 5432 внутри и снаружи
+    ports:
+      - "5432-5432"
+
+volumes:
+  postgres_volume:
+  # static_volume:
+  # media_volume:      
