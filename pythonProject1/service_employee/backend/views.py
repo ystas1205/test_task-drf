@@ -30,10 +30,14 @@ class DepartamentViewSet(ModelViewSet):
          с числом сотрудников + поле с суммарным окладам по всем сотрудникам)"""
         queryset = self.filter_queryset(self.get_queryset())
         response = super().list(request, *args, **kwargs)
+        # print(response)
         response_data = {'result': response.data}
+        # print(response_data)
         response_data['total_salary'] = queryset.aggregate(
             total=Sum('employee__salary')).get('total')
         response_data['number_employee'] = queryset.aggregate(
             total=Count('employee')).get('total')
         response.data = response_data
+        print(response_data)
+       
         return response
